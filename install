@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+COFFEE_PATH="/usr/local"
+echo "Installing Jitter to $COFFEE_PATH/bin/jitter"
+rm "$COFFEE_PATH/lib/coffee-script/bin/jitter"
+cp jitter "$COFFEE_PATH/lib/coffee-script/bin"
+rm "$COFFEE_PATH/bin/jitter"
+ln -s "$COFFEE_PATH/lib/coffee-script/bin/jitter" "$COFFEE_PATH/bin/jitter"
+coffee -c -o "$COFFEE_PATH/lib/coffee-script/lib" jitter.coffee
