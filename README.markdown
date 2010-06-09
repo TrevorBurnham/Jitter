@@ -34,7 +34,7 @@ to the current directory. Then run
 
     jitter src .
 
-For more info, see http://iterative.ly/2010/05/03/introducing-jitter/.
+For more info, see http://iterative.ly/2010/05/03/introducing-jitter/
 
 ## Copyright
 
