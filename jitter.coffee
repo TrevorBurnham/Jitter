@@ -40,15 +40,16 @@ CoffeeScript: require './coffee-script'
 BANNER: '''
   Jitter takes a directory of *.coffee files and recursively compiles
   them to *.js files, preserving the original directory structure.
+  
+  Jitter also watches for changes and automatically recompiles as
+  needed. It even picks up new files, unlike the coffee utility.
 
   Usage:
-    jitter [-flags] coffee-path js-path
+    jitter coffee-path js-path
         '''
 
 SWITCHES: [
-  ['-w', '--watch',         'automatically recompile as changes are made']
-  ['-v', '--verbose',       'print superfluous output']
-  ['-h', '--help',          'display this help message']
+  # No switches
 ]
 
 options: {}
@@ -88,19 +89,18 @@ compile_scripts: ->
     compile(baseSource, baseTarget)
   
   root_compile()
-  if options.watch
-    setInterval root_compile, 500
+  setInterval root_compile, 500
 
 read_script: (source) ->
-  puts 'Compiling '+ source   if options.verbose
+  puts 'Compiling '+ source
   fs.readFile source, (err, code) -> compile_script(source, code)
-  watch_script(source)        if options.watch
+  watch_script(source)
 
 watch_script: (source) ->
   isWatched[source] = true
   fs.watchFile source, {persistent: true, interval: 500}, (curr, prev) ->
     return if curr.mtime.getTime() is prev.mtime.getTime()
-    puts 'Recompiling '+ source   if options.verbose
+    puts 'Recompiling '+ source +' due to change'
     fs.readFile source, (err, code) -> compile_script(source, code)
 
 compile_script: (source, code) ->
@@ -110,7 +110,7 @@ compile_script: (source, code) ->
     js: CoffeeScript.compile code, code_opts
     write_js source, js
   catch err
-    if o.watch            then puts err.message else throw err
+    puts err.message
 
 write_js: (source, js) ->
   filename: path.basename(source, path.extname(source)) + '.js'
