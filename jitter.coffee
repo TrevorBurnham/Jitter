@@ -8,7 +8,11 @@
 # Copyright (c) 2010 Trevor Burnham
 # http://iterative.ly
 # 
-# Based on command.coffee by Jeremy Ashkenas.
+# Based on command.coffee by Jeremy Ashkenas
+# http://jashkenas.github.com/coffee-script/documentation/docs/command.html
+#
+# Growl notification code contributed by Andrey Tarantsov
+# http://www.tarantsov.com/
 # 
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation
@@ -111,12 +115,23 @@ compile_script: (source, code) ->
     write_js source, js
   catch err
     puts err.message
+    notify_growl source, err
 
 write_js: (source, js) ->
   filename: path.basename(source, path.extname(source)) + '.js'
   dir:      baseTarget + path.dirname(source).substring(baseSource.length)
   js_path:  path.join dir, filename
   exec "mkdir -p $dir", (error, stdout, stderr) -> fs.writeFile(js_path, js)
+
+notify_growl: (source, err) ->
+  basename: source.replace(/^.*[\/\\]/, '')
+  [title, prio]: ["Compilation failed", 2]
+  if m: err.message.match(/Parse error on line (\d+)/)
+    message: "Parse error in ${basename}\non line ${m[1]}."
+  else
+    message: "Error when compiling ${basename}."
+  args: ['growlnotify', '-n', "CoffeeScript", '-p', "${prio}", '-t', "\"${title}\"", '-m', "\"${message}\""]
+  exec args.join(" ")
 
 parse_options: ->
   option_parser: new optparse.OptionParser SWITCHES, BANNER

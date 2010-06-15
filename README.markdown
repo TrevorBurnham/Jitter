@@ -36,12 +36,23 @@ to the current directory. Then run
 
 For more info, see http://iterative.ly/2010/05/03/introducing-jitter/
 
+## Growl notifications
+
+Jitter will display a growl notification whenever compilation fails, provided that you
+have [growlnotify](http://growl.info/extras.php) installed and on your PATH. This allows
+you to run Jitter silently in the background, not worrying about it until you get a
+syntax error.
+
 ## Copyright
 
 Copyright (c) 2010 Trevor Burnham
 http://iterative.ly
 
-Based on command.coffee by Jeremy Ashkenas.
+Based on command.coffee by Jeremy Ashkenas
+http://jashkenas.github.com/coffee-script/documentation/docs/command.html
+
+Growl notification code contributed by Andrey Tarantsov
+http://www.tarantsov.com/
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
