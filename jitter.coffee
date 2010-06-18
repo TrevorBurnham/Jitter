@@ -139,7 +139,9 @@ parse_options: ->
   options.run:   not (o.compile or o.print or o.lint)
   options.print: !!  (o.print or (o.eval or o.stdio and o.compile))
   baseSource:    options.arguments[2]
+  if baseSource[-1] == '/' then baseSource = baseSource[0...baseSource.length - 1]
   baseTarget:    options.arguments[3]
+  if baseTarget[-1] == '/' then baseTarget = baseTarget[0...baseTarget.length - 1]
 
 compile_options: (source) ->
   o: {source: source}
