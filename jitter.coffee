@@ -93,6 +93,7 @@ compile_scripts: ->
     compile(baseSource, baseTarget)
   
   root_compile()
+  puts 'Watching for changes and new files. Press Ctrl+C to stop.'
   setInterval root_compile, 500
 
 read_script: (source) ->
@@ -104,7 +105,7 @@ watch_script: (source) ->
   isWatched[source] = true
   fs.watchFile source, {persistent: true, interval: 500}, (curr, prev) ->
     return if curr.mtime.getTime() is prev.mtime.getTime()
-    puts 'Recompiling '+ source +' due to change'
+    puts 'Recompiling '+ source
     fs.readFile source, (err, code) -> compile_script(source, code)
 
 compile_script: (source, code) ->
