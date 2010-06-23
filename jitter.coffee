@@ -1,19 +1,19 @@
 #!/usr/bin/env node
 
 # Jitter, a CoffeeScript compilation utility
-# 
+#
 # The latest version and documentation, can be found at:
 # http://github.com/TrevorBurnham/Jitter
-# 
+#
 # Copyright (c) 2010 Trevor Burnham
 # http://iterative.ly
-# 
+#
 # Based on command.coffee by Jeremy Ashkenas
 # http://jashkenas.github.com/coffee-script/documentation/docs/command.html
 #
 # Growl notification code contributed by Andrey Tarantsov
 # http://www.tarantsov.com/
-# 
+#
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation
 # files (the "Software"), to deal in the Software without
@@ -22,10 +22,10 @@
 # copies of the Software, and to permit persons to whom the
 # Software is furnished to do so, subject to the following
 # conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 # EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
 # OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -44,7 +44,7 @@ CoffeeScript: require './coffee-script'
 BANNER: '''
   Jitter takes a directory of *.coffee files and recursively compiles
   them to *.js files, preserving the original directory structure.
-  
+
   Jitter also watches for changes and automatically recompiles as
   needed. It even picks up new files, unlike the coffee utility.
 
@@ -59,6 +59,8 @@ SWITCHES: [
 options: {}
 baseSource: ''
 baseTarget: ''
+concatTarget: ''
+dirty: false
 option_parser: null
 isWatched: {}
 
@@ -81,6 +83,7 @@ compile_scripts: ->
       puts "Target '$baseTarget' is a file; Jitter needs a directory."; process.exit(1)
 
   compile: (source, target) ->
+    changed: false
     for i in fs.readdirSync(source)
       sourcePath: source +'/'+ i
       continue    if isWatched[sourcePath]
@@ -88,25 +91,28 @@ compile_scripts: ->
         read_script (sourcePath)
       else if fs.statSync(sourcePath).isDirectory()
         compile sourcePath
-  
+
   root_compile: ->
     compile(baseSource, baseTarget)
-  
+    if dirty and concatTarget then concat_js()
+
   root_compile()
   puts 'Watching for changes and new files. Press Ctrl+C to stop.'
   setInterval root_compile, 500
 
 read_script: (source) ->
-  puts 'Compiling '+ source
   fs.readFile source, (err, code) -> compile_script(source, code)
+  puts 'Compiled '+ source
+  dirty: true
   watch_script(source)
 
 watch_script: (source) ->
   isWatched[source] = true
   fs.watchFile source, {persistent: true, interval: 500}, (curr, prev) ->
     return if curr.mtime.getTime() is prev.mtime.getTime()
-    puts 'Recompiling '+ source
     fs.readFile source, (err, code) -> compile_script(source, code)
+    puts 'Recompiled '+ source
+    dirty: true
 
 compile_script: (source, code) ->
   o: options
@@ -123,6 +129,20 @@ write_js: (source, js) ->
   dir:      baseTarget + path.dirname(source).substring(baseSource.length)
   js_path:  path.join dir, filename
   exec "mkdir -p $dir", (error, stdout, stderr) -> fs.writeFile(js_path, js)
+
+concat_js: ->
+  dirty: false
+  read_dir: (str, dir) ->
+    for i in fs.readdirSync(dir)
+      jsPath: dir +'/'+ i
+      if fs.statSync(jsPath).isDirectory()
+        str: read_dir str, jsPath
+      else if path.extname(jsPath) is '.js'
+        str += fs.readFileSync jsPath
+    return str
+  output: read_dir '', baseTarget
+  fs.writeFile concatTarget, output
+  puts "Concatenated output to $concatTarget"
 
 notify_growl: (source, err) ->
   basename: source.replace(/^.*[\/\\]/, '')
@@ -143,11 +163,10 @@ parse_options: ->
   if baseSource[-1] == '/' then baseSource = baseSource[0...baseSource.length - 1]
   baseTarget:    options.arguments[3]
   if baseTarget[-1] == '/' then baseTarget = baseTarget[0...baseTarget.length - 1]
+  if options.arguments.length >= 3 then concatTarget: options.arguments[4]
 
 compile_options: (source) ->
   o: {source: source}
-  o['no_wrap']: options['no-wrap']
-  o
 
 usage: ->
   puts option_parser.help()

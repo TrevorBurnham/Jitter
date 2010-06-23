@@ -8,7 +8,8 @@ sweet CoffeeScript compilation you need when you need it.
 
 ## Installing
 
-First you'll need to install CoffeeScript, if you don't have it already (if you have it, `coffee -v` will display the version  number). If you have Homebrew, you can just run
+First you'll need to install CoffeeScript, if you don't have it already (if you have it,
+`coffee -v` will display the version  number). If you have Homebrew, you can just run
 
   `brew install coffee-script`
 
@@ -42,6 +43,23 @@ Jitter will display a growl notification whenever compilation fails, provided th
 have [growlnotify](http://growl.info/extras.php) installed and on your PATH. This allows
 you to run Jitter silently in the background, not worrying about it until you get a
 syntax error.
+
+## Concatenation
+
+This should be considered an experimental feature. Right now extremely efficient, and
+is certainly no substitute for a good production concatenation/minification system.
+
+Having said that, it's common for CoffeeScript coders to work with a large number of
+nicely encapsulated files when only a single JavaScript output file is desired. Jitter
+can save you time by doing this in the background every time your code is recompiled.
+Just supply the name of the concatenated JS file as a third command line option:
+
+    jitter coffee js concat.js
+
+Then `concat.js` will be the sum total of everything in the `js` directory. (Note that
+this may include files other than those compiled from CoffeeScript.) Right now, Jitter
+performs no minification, and there's no way for you to specify the order in which it
+goes through the `js` files.
 
 ## Copyright
 
