@@ -108,8 +108,6 @@ watchScript: (source) ->
 
 compileScript: (source, code) ->
   try
-    puts 'code: ' + code
-    puts 'source: ' + source
     js: CoffeeScript.compile code, {source}
     writeJS source, js
   catch err
