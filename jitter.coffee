@@ -1,48 +1,48 @@
 #!/usr/bin/env node
 
-###
-  Jitter, a CoffeeScript compilation utility
+# Jitter, a CoffeeScript compilation utility
+# 
+# The latest version and documentation, can be found at:
+# http://github.com/TrevorBurnham/Jitter
+# 
+# Copyright (c) 2010 Trevor Burnham
+# http://iterative.ly
+# 
+# Based on command.coffee by Jeremy Ashkenas
+# http://jashkenas.github.com/coffee-script/documentation/docs/command.html
+# 
+# Growl notification code contributed by Andrey Tarantsov
+# http://www.tarantsov.com/
+# 
+# Permission is hereby granted, free of charge, to any person
+# obtaining a copy of this software and associated documentation
+# files (the "Software"), to deal in the Software without
+# restriction, including without limitation the rights to use,
+# copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following
+# conditions:
+# 
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+# OTHER DEALINGS IN THE SOFTWARE.
 
-  The latest version and documentation, can be found at:
-  http://github.com/TrevorBurnham/Jitter
-
-  Copyright (c) 2010 Trevor Burnham
-  http://iterative.ly
-
-  Based on command.coffee by Jeremy Ashkenas
-  http://jashkenas.github.com/coffee-script/documentation/docs/command.html
-
-  Growl notification code contributed by Andrey Tarantsov
-  http://www.tarantsov.com/
-
-  Permission is hereby granted, free of charge, to any person
-  obtaining a copy of this software and associated documentation
-  files (the "Software"), to deal in the Software without
-  restriction, including without limitation the rights to use,
-  copy, modify, merge, publish, distribute, sublicense, and/or sell
-  copies of the Software, and to permit persons to whom the
-  Software is furnished to do so, subject to the following
-  conditions:
-
-  The above copyright notice and this permission notice shall be
-  included in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-  HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-  OTHER DEALINGS IN THE SOFTWARE.
-###
-
+# External dependencies
 fs:            require 'fs'
 path:          require 'path'
 optparse:      require './optparse'
 CoffeeScript:  require './coffee-script'
 {spawn, exec}: require('child_process')
 
+# Banner shown if jitter is run without arguments
 BANNER: '''
   Jitter takes a directory of *.coffee files and recursively compiles
   them to *.js files, preserving the original directory structure.
@@ -53,119 +53,96 @@ BANNER: '''
   Usage:
     jitter coffee-path js-path
         '''
-
+# Globals
 options: {}
 baseSource: ''
 baseTarget: ''
-concatTarget: ''
-dirty: false
-option_parser: null
+optionParser: null
 isWatched: {}
 
 exports.run: ->
-  parse_options()
-  return usage()    if options.help
-  return usage()    unless baseTarget
-  compile_scripts()
+  parseOptions()
+  return usage() unless baseTarget
+  compileScripts()
 
-compile_scripts: ->
+compileScripts: ->
   path.exists baseSource, (exists) ->
-    if ! exists
-      puts "Source directory '$baseSource' does not exist."; process.exit(1)
-    else if ! fs.statSync(baseSource).isDirectory()
-      puts "Source '$baseSource' is a file; Jitter needs a directory."; process.exit(1)
+    unless exists
+      die "Source directory '$baseSource' does not exist."
+    else unless fs.statSync(baseSource).isDirectory()
+      die "Source '$baseSource' is a file; Jitter needs a directory."
   path.exists baseTarget, (exists) ->
-    if ! exists
-      puts "Target directory '$baseTarget' does not exist."; process.exit(1)
-    else if ! fs.statSync(baseTarget).isDirectory()
-      puts "Target '$baseTarget' is a file; Jitter needs a directory."; process.exit(1)
+    unless exists
+      die "Target directory '$baseTarget' does not exist."
+    else unless fs.statSync(baseTarget).isDirectory()
+      die "Target '$baseTarget' is a file; Jitter needs a directory."
 
   compile: (source, target) ->
     changed: false
-    for i in fs.readdirSync(source)
-      sourcePath: source +'/'+ i
-      continue    if isWatched[sourcePath]
-      if path.extname(sourcePath) == '.coffee'
-        read_script (sourcePath)
+    for item in fs.readdirSync source
+      sourcePath: "$source/$item"
+      continue if isWatched[sourcePath]
+      if path.extname(sourcePath) is '.coffee'
+        readScript sourcePath
       else if fs.statSync(sourcePath).isDirectory()
         compile sourcePath
 
-  root_compile: ->
+  rootCompile: ->
     compile(baseSource, baseTarget)
-    if dirty and concatTarget then concat_js()
 
-  root_compile()
+  rootCompile()
   puts 'Watching for changes and new files. Press Ctrl+C to stop.'
-  setInterval root_compile, 500
+  setInterval rootCompile, 500
 
-read_script: (source) ->
-  fs.readFile source, (err, code) -> compile_script(source, code)
+readScript: (source) ->
+  fs.readFile source, (err, code) -> compileScript(source, code)
   puts 'Compiled '+ source
-  dirty: true
-  watch_script(source)
+  watchScript(source)
 
-watch_script: (source) ->
+watchScript: (source) ->
   isWatched[source] = true
-  fs.watchFile source, {persistent: true, interval: 500}, (curr, prev) ->
+  fs.watchFile source, {persistent: true, interval: 250}, (curr, prev) ->
     return if curr.mtime.getTime() is prev.mtime.getTime()
-    fs.readFile source, (err, code) -> compile_script(source, code)
+    fs.readFile source, (err, code) -> compileScript(source, code)
     puts 'Recompiled '+ source
-    dirty: true
 
-compile_script: (source, code) ->
-  o: options
-  code_opts: compile_options source
+compileScript: (source, code) ->
   try
-    js: CoffeeScript.compile code, code_opts
-    write_js source, js
+    puts 'code: ' + code
+    puts 'source: ' + source
+    js: CoffeeScript.compile code, {source}
+    writeJS source, js
   catch err
     puts err.message
-    notify_growl source, err
+    notifyGrowl source, err
 
-write_js: (source, js) ->
+writeJS: (source, js) ->
   filename: path.basename(source, path.extname(source)) + '.js'
   dir:      baseTarget + path.dirname(source).substring(baseSource.length)
-  js_path:  path.join dir, filename
-  exec "mkdir -p $dir", (error, stdout, stderr) -> fs.writeFile(js_path, js)
+  jsPath:  path.join dir, filename
+  exec "mkdir -p $dir", (error, stdout, stderr) -> fs.writeFile(jsPath, js)
 
-concat_js: ->
-  dirty: false
-  read_dir: (str, dir) ->
-    for i in fs.readdirSync(dir)
-      jsPath: dir +'/'+ i
-      if fs.statSync(jsPath).isDirectory()
-        str: read_dir str, jsPath
-      else if path.extname(jsPath) is '.js'
-        str += fs.readFileSync jsPath
-    return str
-  output: read_dir '', baseTarget
-  fs.writeFile concatTarget, output
-  puts "Concatenated output to $concatTarget"
-
-notify_growl: (source, err) ->
+notifyGrowl: (source, err) ->
   basename: source.replace(/^.*[\/\\]/, '')
-  [title, prio]: ["Compilation failed", 2]
-  if m: err.message.match(/Parse error on line (\d+)/)
+  if m: err.message.match /Parse error on line (\d+)/
     message: "Parse error in ${basename}\non line ${m[1]}."
   else
     message: "Error when compiling ${basename}."
-  args: ['growlnotify', '-n', "CoffeeScript", '-p', "${prio}", '-t', "\"${title}\"", '-m', "\"${message}\""]
-  exec args.join(" ")
+  args: ['growlnotify', '-n', 'CoffeeScript', '-p', '2', '-t', "\"Compilation failed\"", '-m', "\"${message}\""]
+  exec args.join(' ')
 
-parse_options: ->
-  option_parser: new optparse.OptionParser SWITCHES, BANNER
-  o: options:    option_parser.parse(process.argv)
-  options.run:   not (o.compile or o.print or o.lint)
-  options.print: !!  (o.print or (o.eval or o.stdio and o.compile))
+parseOptions: ->
+  optionParser: new optparse.OptionParser [], BANNER
+  options:    optionParser.parse process.argv
   baseSource:    options.arguments[2]
-  if baseSource[-1] == '/' then baseSource = baseSource[0...baseSource.length - 1]
+  if baseSource[-1] is '/' then baseSource = baseSource[0...-1]
   baseTarget:    options.arguments[3]
-  if baseTarget[-1] == '/' then baseTarget = baseTarget[0...baseTarget.length - 1]
-  if options.arguments.length >= 3 then concatTarget: options.arguments[4]
-
-compile_options: (source) ->
-  o: {source: source}
+  if baseTarget[-1] is '/' then baseTarget = baseTarget[0...-1]
 
 usage: ->
-  puts option_parser.help()
+  puts optionParser.help()
   process.exit 0
+
+die: (message) ->
+  puts message
+  process.exit 1

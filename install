@@ -6,4 +6,4 @@ rm "$COFFEE_PATH/lib/coffee-script/bin/jitter"
 cp jitter "$COFFEE_PATH/lib/coffee-script/bin"
 rm "$COFFEE_PATH/bin/jitter"
 ln -s "$COFFEE_PATH/lib/coffee-script/bin/jitter" "$COFFEE_PATH/bin/jitter"
-coffee -c -o "$COFFEE_PATH/lib/coffee-script/lib" jitter.coffee
+coffee -co "$COFFEE_PATH/lib/coffee-script/lib" jitter.coffee
