@@ -95,7 +95,7 @@ compileScripts: ->
   setInterval rootCompile, 500
 
 readScript: (source) ->
-  fs.readFile source, (err, code) -> compileScript(source, code)
+  fs.readFile source, (err, code) -> compileScript(source, code.toString())
   puts 'Compiled '+ source
   watchScript(source)
 
@@ -103,7 +103,7 @@ watchScript: (source) ->
   isWatched[source] = true
   fs.watchFile source, {persistent: true, interval: 250}, (curr, prev) ->
     return if curr.mtime.getTime() is prev.mtime.getTime()
-    fs.readFile source, (err, code) -> compileScript(source, code)
+    fs.readFile source, (err, code) -> compileScript(source, code.toString())
     puts 'Recompiled '+ source
 
 compileScript: (source, code) ->
