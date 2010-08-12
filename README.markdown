@@ -6,6 +6,8 @@ Jitter watches for new files and changes to files in the CoffeeScript source dir
 you specify, and compiles new JavaScript files as needed. No flags, no worries, just the
 sweet CoffeeScript compilation you need when you need it.
 
+**Jitter requires CoffeeScript 0.9.1.**
+
 ## Installing
 
 First you'll need to install CoffeeScript, if you don't have it already (if you have it,
@@ -44,15 +46,20 @@ have [growlnotify](http://growl.info/extras.php) installed and on your PATH. Thi
 you to run Jitter silently in the background, not worrying about it until you get a
 syntax error.
 
+## Credits
+
+Originally written by [Trevor Burnham](http://github.com/TrevorBurnham). Updated to
+CoffeeScript 0.9 by [cj](http://github.com/cj).
+
 ## Copyright
 
-Copyright (c) 2010 Trevor Burnham
+Copyright (c) 2010 Trevor Burnham  
 http://iterative.ly
 
-Based on command.coffee by Jeremy Ashkenas
+Based on command.coffee by Jeremy Ashkenas  
 http://jashkenas.github.com/coffee-script/documentation/docs/command.html
 
-Growl notification code contributed by Andrey Tarantsov
+Growl notification code contributed by Andrey Tarantsov  
 http://www.tarantsov.com/
 
 Permission is hereby granted, free of charge, to any person
