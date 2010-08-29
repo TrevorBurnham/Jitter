@@ -1,27 +1,27 @@
 # Jitter
 
-A simple compilation utility for [CoffeeScript](http://coffeescript.org).
+Simple continuous compilation for [CoffeeScript](http://coffeescript.org).
 
 Jitter watches for new files and changes to files in the CoffeeScript source directory
 you specify, and compiles new JavaScript files as needed. No flags, no worries, just the
 sweet CoffeeScript compilation you need when you need it.
 
-**Jitter requires CoffeeScript 0.9.1.**
+*Bonus!* Jitter gives you Growl notifications when compilation fails! See below for
+details.
 
 ## Installing
 
-First you'll need to install CoffeeScript, if you don't have it already (if you have it,
-`coffee -v` will display the version  number). If you have Homebrew, you can just run
+You'll need to install [Node.js](http://nodejs.org) and [npm](http://npmjs.org/), the
+Node Package Manager. Once that's done, installing CoffeeScript is a breeze:
 
-  `brew install coffee-script`
+    npm install coffee-script
 
-Otherwise, instructions can be found at http://github.com/jashkenas/coffee-script.
+And adding Jitter is just as easy:
 
-Once you have CoffeeScript on your path, just download Jitter and run
+    npm install jitter
 
-  `./install`
-
-You've now got Jitter!
+Make sure that the `bin` directory that `coffee` and `jitter` are installed to is on
+your PATH.
 
 ## To use:
 
@@ -36,8 +36,6 @@ Or let's say you want to take `*.coffee` files from the `src` directory and comp
 to the current directory. Then run
 
     jitter src .
-
-For more info, see http://iterative.ly/2010/05/03/introducing-jitter/
 
 ## Growl notifications
 
@@ -61,6 +59,8 @@ http://jashkenas.github.com/coffee-script/documentation/docs/command.html
 
 Growl notification code contributed by Andrey Tarantsov  
 http://www.tarantsov.com/
+
+MIT licensed:
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
