@@ -40,7 +40,7 @@ fs=            require 'fs'
 path=          require 'path'
 optparse=      require './optparse'
 CoffeeScript=  require './coffee-script'
-{spawn, exec}= require('child_process')
+{spawn, exec}= require 'child_process'
 
 # Banner shown if jitter is run without arguments
 BANNER= '''
@@ -132,9 +132,9 @@ notifyGrowl= (source, err) ->
 parseOptions= ->
   optionParser= new optparse.OptionParser [], BANNER
   options=    optionParser.parse process.argv
-  baseSource=    options.arguments[2]
+  baseSource= options.arguments[2] if options.arguments[2]
+  baseTarget= options.arguments[3] if options.arguments[3]
   if baseSource[-1] is '/' then baseSource = baseSource[0...-1]
-  baseTarget=    options.arguments[3]
   if baseTarget[-1] is '/' then baseTarget = baseTarget[0...-1]
 
 usage= ->
