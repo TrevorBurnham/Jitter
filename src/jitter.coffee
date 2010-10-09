@@ -36,6 +36,7 @@
 ###
 
 # External dependencies
+
 fs=            require 'fs'
 path=          require 'path'
 optparse=      require './optparse'
@@ -51,14 +52,17 @@ BANNER= '''
   needed. It even detects new files, unlike the coffee utility.
 
   Usage:
-    jitter coffee-path js-path
+    jitter coffee-path js-path [test-path]
         '''
 # Globals
 options= {}
 baseSource= ''
 baseTarget= ''
+baseTest= null
 optionParser= null
 isWatched= {}
+testFiles = []
+pending = 0
 
 exports.run= ->
   parseOptions()
@@ -66,74 +70,93 @@ exports.run= ->
   compileScripts()
 
 compileScripts= ->
-  path.exists baseSource, (exists) ->
-    unless exists
-      die "Source directory '#{baseSource}' does not exist."
-    else unless fs.statSync(baseSource).isDirectory()
-      die "Source '#{baseSource}' is a file; Jitter needs a directory."
-  path.exists baseTarget, (exists) ->
-    unless exists
-      die "Target directory '#{baseTarget}' does not exist."
-    else unless fs.statSync(baseTarget).isDirectory()
-      die "Target '#{baseTarget}' is a file; Jitter needs a directory."
+  dirs = Source: baseSource, Target: baseTarget
+  dirs.Test = baseTest if baseTest
+  for name, dir of dirs 
+    ++pending
+    path.exists dir, (exists) ->
+      unless exists
+        die "#{name} directory '#{dir}' does not exist."
+      else unless fs.statSync(dir).isDirectory()
+        die "#{name} '#{dir}' is a file; Jitter needs a directory."
+      if --pending == 0
+        rootCompile()
+        puts 'Watching for changes and new files. Press Ctrl+C to stop.'
+        setInterval rootCompile, 500
 
-  compile= (source, target) ->
-    changed= false
-    for item in fs.readdirSync source
-      sourcePath= "#{source}/#{item}"
-      continue if isWatched[sourcePath]
-      if path.extname(sourcePath) is '.coffee'
-        readScript sourcePath
-      else if fs.statSync(sourcePath).isDirectory()
-        compile sourcePath
 
-  rootCompile= ->
-    compile(baseSource, baseTarget)
+compile= (source, target) ->
+  changed= false
+  for item in fs.readdirSync source
+    sourcePath= "#{source}/#{item}"
+    continue if isWatched[sourcePath]
+    if path.extname(sourcePath) is '.coffee'
+      readScript sourcePath, target
+    else if fs.statSync(sourcePath).isDirectory()
+      compile sourcePath, target
+    
 
-  rootCompile()
-  puts 'Watching for changes and new files. Press Ctrl+C to stop.'
-  setInterval rootCompile, 500
+rootCompile= ->
+  compile(baseSource, baseTarget)
+  compile(baseTest, baseTest) if baseTest
 
-readScript= (source) ->
-  fs.readFile source, (err, code) -> compileScript(source, code.toString())
+  
+readScript= (source, target) ->
+  code = fs.readFileSync source
+  compileScript(source, code.toString(), target)
   puts 'Compiled '+ source
-  watchScript(source)
+  watchScript(source, target)
 
-watchScript= (source) ->
+watchScript= (source, target) ->
   isWatched[source] = true
   fs.watchFile source, {persistent: true, interval: 250}, (curr, prev) ->
     return if curr.mtime.getTime() is prev.mtime.getTime()
-    fs.readFile source, (err, code) -> compileScript(source, code.toString())
+    code = fs.readFileSync source
+    compileScript(source, code.toString(), target)
     puts 'Recompiled '+ source
 
-compileScript= (source, code) ->
+compileScript= (source, code, target) ->
   try
     js= CoffeeScript.compile code, {source}
-    writeJS source, js
+    writeJS source, js, target
   catch err
     puts err.message
-    notifyGrowl source, err
+    notifyGrowl source, err.message
 
-writeJS= (source, js) ->
+writeJS= (source, js, target) ->
+  base = if target is baseTest then baseTest else baseSource
   filename= path.basename(source, path.extname(source)) + '.js'
-  dir=      baseTarget + path.dirname(source).substring(baseSource.length)
+  dir=      target + path.dirname(source).substring(base.length)
   jsPath=  path.join dir, filename
-  exec "mkdir -p #{dir}", (error, stdout, stderr) -> fs.writeFile(jsPath, js)
-
-notifyGrowl= (source, err) ->
+  ++pending
+  exec "mkdir -p #{dir}", ->
+    fs.writeFileSync jsPath, js
+    testFiles.push jsPath if target is baseTest and jsPath not in testFiles
+    runTests() if --pending == 0 and baseTest
+      
+notifyGrowl= (source, errMessage) ->
   basename= source.replace(/^.*[\/\\]/, '')
-  if m= err.message.match /Parse error on line (\d+)/
+  if m= errMessage.match /Parse error on line (\d+)/
     message= "Parse error in #{basename}\non line #{m[1]}."
   else
-    message= "Error when compiling #{basename}."
+    message= "Error in #{basename}."
   args= ['growlnotify', '-n', 'CoffeeScript', '-p', '2', '-t', "\"Compilation failed\"", '-m', "\"#{message}\""]
   exec args.join(' ')
+
+runTests = ->
+  for test in testFiles
+    puts "running #{test}"
+    exec "node #{test}", (error, stdout, stderr) ->
+      print stdout
+      print stderr
+      notifyGrowl test, stderr if stderr
 
 parseOptions= ->
   optionParser= new optparse.OptionParser [], BANNER
   options=    optionParser.parse process.argv
   baseSource= options.arguments[2] if options.arguments[2]
   baseTarget= options.arguments[3] if options.arguments[3]
+  baseTest= options.arguments[4] if options.arguments[4]
   if baseSource[-1] is '/' then baseSource = baseSource[0...-1]
   if baseTarget[-1] is '/' then baseTarget = baseTarget[0...-1]
 
