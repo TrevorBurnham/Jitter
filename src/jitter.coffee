@@ -42,6 +42,8 @@ path=          require 'path'
 optparse=      require './optparse'
 CoffeeScript=  require 'coffee-script'
 {spawn, exec}= require 'child_process'
+{puts, print}= require 'sys'
+{q}=         require './q'
 
 # Banner shown if jitter is run without arguments
 BANNER= '''
@@ -62,7 +64,6 @@ baseTest= null
 optionParser= null
 isWatched= {}
 testFiles = []
-pending = 0
 
 exports.run= ->
   parseOptions()
@@ -73,17 +74,16 @@ compileScripts= ->
   dirs = Source: baseSource, Target: baseTarget
   dirs.Test = baseTest if baseTest
   for name, dir of dirs 
-    ++pending
-    path.exists dir, (exists) ->
+    q path.exists, dir, (exists) ->
       unless exists
         die "#{name} directory '#{dir}' does not exist."
       else unless fs.statSync(dir).isDirectory()
         die "#{name} '#{dir}' is a file; Jitter needs a directory."
-      if --pending == 0
-        rootCompile()
-        puts 'Watching for changes and new files. Press Ctrl+C to stop.'
-        setInterval rootCompile, 500
-
+  q rootCompile
+  q runTests
+  q ->  
+    puts 'Watching for changes and new files. Press Ctrl+C to stop.'
+    setInterval rootCompile, 500
 
 compile= (source, target) ->
   changed= false
@@ -95,12 +95,10 @@ compile= (source, target) ->
     else if fs.statSync(sourcePath).isDirectory()
       compile sourcePath, target
     
-
 rootCompile= ->
   compile(baseSource, baseTarget)
   compile(baseTest, baseTest) if baseTest
 
-  
 readScript= (source, target) ->
   code = fs.readFileSync source
   compileScript(source, code.toString(), target)
@@ -114,6 +112,7 @@ watchScript= (source, target) ->
     code = fs.readFileSync source
     compileScript(source, code.toString(), target)
     puts 'Recompiled '+ source
+    q runTests
 
 compileScript= (source, code, target) ->
   try
@@ -128,11 +127,9 @@ writeJS= (source, js, target) ->
   filename= path.basename(source, path.extname(source)) + '.js'
   dir=      target + path.dirname(source).substring(base.length)
   jsPath=  path.join dir, filename
-  ++pending
-  exec "mkdir -p #{dir}", ->
+  q exec, "mkdir -p #{dir}", ->
     fs.writeFileSync jsPath, js
-    testFiles.push jsPath if target is baseTest and jsPath not in testFiles
-    runTests() if --pending == 0 and baseTest
+    testFiles.push jsPath if target is baseTest and jsPath not in testFiles 
       
 notifyGrowl= (source, errMessage) ->
   basename= source.replace(/^.*[\/\\]/, '')
