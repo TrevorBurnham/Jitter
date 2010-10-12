@@ -36,14 +36,13 @@
 ###
 
 # External dependencies
-
 fs=            require 'fs'
 path=          require 'path'
 optparse=      require './optparse'
 CoffeeScript=  require 'coffee-script'
 {spawn, exec}= require 'child_process'
 {puts, print}= require 'sys'
-{q}=         require './q'
+{q}=           require './q'
 
 # Banner shown if jitter is run without arguments
 BANNER= '''
@@ -58,9 +57,7 @@ BANNER= '''
         '''
 # Globals
 options= {}
-baseSource= ''
-baseTarget= ''
-baseTest= null
+baseSource = baseTarget = baseTest = ''
 optionParser= null
 isWatched= {}
 testFiles = []
@@ -86,7 +83,6 @@ compileScripts= ->
     setInterval rootCompile, 500
 
 compile= (source, target) ->
-  changed= false
   for item in fs.readdirSync source
     sourcePath= "#{source}/#{item}"
     continue if isWatched[sourcePath]
@@ -100,8 +96,7 @@ rootCompile= ->
   compile(baseTest, baseTest) if baseTest
 
 readScript= (source, target) ->
-  code = fs.readFileSync source
-  compileScript(source, code.toString(), target)
+  compileScript(source, target)
   puts 'Compiled '+ source
   watchScript(source, target)
 
@@ -109,13 +104,13 @@ watchScript= (source, target) ->
   isWatched[source] = true
   fs.watchFile source, {persistent: true, interval: 250}, (curr, prev) ->
     return if curr.mtime.getTime() is prev.mtime.getTime()
-    code = fs.readFileSync source
-    compileScript(source, code.toString(), target)
+    compileScript(source, target)
     puts 'Recompiled '+ source
     q runTests
 
-compileScript= (source, code, target) ->
+compileScript= (source, target) ->
   try
+    code = fs.readFileSync(source).toString()
     js= CoffeeScript.compile code, {source}
     writeJS source, js, target
   catch err
@@ -151,9 +146,7 @@ runTests = ->
 parseOptions= ->
   optionParser= new optparse.OptionParser [], BANNER
   options=    optionParser.parse process.argv
-  baseSource= options.arguments[2] if options.arguments[2]
-  baseTarget= options.arguments[3] if options.arguments[3]
-  baseTest= options.arguments[4] if options.arguments[4]
+  [baseSource, baseTarget, baseTest] = options.arguments[arg] or '' for arg in [2..4]
   if baseSource[-1] is '/' then baseSource = baseSource[0...-1]
   if baseTarget[-1] is '/' then baseTarget = baseTarget[0...-1]
 
