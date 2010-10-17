@@ -26,6 +26,14 @@ And adding Jitter is just as easy:
 Make sure that the `bin` directory that `coffee` and `jitter` are installed to is on
 your PATH.
 
+### From source
+
+To build and install Jitter from source:
+
+    git clone git://github.com/TrevorBurnham/Jitter.git
+    cd Jitter
+    npm install .
+
 ## To use:
 
 Let's say you have a bunch of `*.coffee` files in the `coffee` directory, and want to
