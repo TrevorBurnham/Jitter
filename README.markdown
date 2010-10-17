@@ -37,7 +37,7 @@ to the current directory. Then run
 
     jitter src .
 
-To automatically run your tests after each change, specify a test directory.
+To automatically run your tests after each change, specify a test directory:
 
     jitter coffee js test
 
