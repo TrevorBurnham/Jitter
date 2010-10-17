@@ -9,6 +9,9 @@ sweet CoffeeScript compilation you need when you need it.
 *Bonus!* Jitter gives you Growl notifications when compilation fails! See below for
 details.
 
+*Extra bonus!* Jitter lets you automatically compile and run a second set of code after
+each successful compilation. That means that console-based tests are a breeze.
+
 ## Installing
 
 You'll need to install [Node.js](http://nodejs.org) and [npm](http://npmjs.org/), the
@@ -53,7 +56,9 @@ syntax error.
 ## Credits
 
 Originally written by [Trevor Burnham](http://github.com/TrevorBurnham). Updated to
-CoffeeScript 0.9 by [cj](http://github.com/cj).
+CoffeeScript 0.9 by [cj](http://github.com/cj). Growl notification code pulled from work
+by [Andrey Tarantsov](http://www.tarantsov.com/). Post-compile hook code added by Scott
+Wadden ([hiddenbek](http://github.com/hiddenbek)).
 
 ## Copyright
 
@@ -62,9 +67,6 @@ http://iterative.ly
 
 Based on command.coffee by Jeremy Ashkenas  
 http://jashkenas.github.com/coffee-script/documentation/docs/command.html
-
-Growl notification code contributed by Andrey Tarantsov  
-http://www.tarantsov.com/
 
 MIT licensed:
 
