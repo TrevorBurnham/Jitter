@@ -52,7 +52,8 @@ To automatically run your tests after each change, specify a test directory:
 
     jitter coffee js test
 
-Tests will be compiled to js in place, then executed with node.
+Tests will be compiled to js in place, then executed with node. Tests are automatically
+re-executed when changed.
 
 ## Growl notifications
 
@@ -60,6 +61,9 @@ Jitter will display a growl notification whenever compilation fails, provided th
 have [growlnotify](http://growl.info/extras.php) installed and on your PATH. This allows
 you to run Jitter silently in the background, not worrying about it until you get a
 syntax error.
+
+Growl notifications are also shown if an error is encountered while running a test,
+including uncaught `AssertionError`s.
 
 ## Credits
 
