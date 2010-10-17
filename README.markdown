@@ -37,6 +37,12 @@ to the current directory. Then run
 
     jitter src .
 
+To automatically run your tests after each change, specify a test directory.
+
+    jitter coffee js test
+
+Tests will be compiled to js in place, then executed with node.
+
 ## Growl notifications
 
 Jitter will display a growl notification whenever compilation fails, provided that you
