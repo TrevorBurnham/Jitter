@@ -17,5 +17,8 @@
   'main': './lib/coffee-script/jitter',
   'bin': {
     'jitter': './bin/jitter'
+  },
+  "dependencies" : { 
+    "sink" : "0.1.0 - 0.2.99" 
   }
 }

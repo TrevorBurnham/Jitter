@@ -36,13 +36,14 @@
 ###
 
 # External dependencies
+
 fs=            require 'fs'
 path=          require 'path'
 optparse=      require './optparse'
 CoffeeScript=  require 'coffee-script'
-{spawn, exec}= require 'child_process'
+{exec}=        require 'child_process'
 {puts, print}= require 'sys'
-{q}=           require './q'
+{q}=           require 'sink'
 
 # Banner shown if jitter is run without arguments
 BANNER= '''
@@ -52,15 +53,18 @@ BANNER= '''
   Jitter also watches for changes and automatically recompiles as
   needed. It even detects new files, unlike the coffee utility.
 
+  If passed a test directory, it will run each test through node on
+  each change.
+
   Usage:
     jitter coffee-path js-path [test-path]
         '''
 # Globals
 options= {}
-baseSource = baseTarget = baseTest = ''
+baseSource= baseTarget= baseTest= ''
 optionParser= null
 isWatched= {}
-testFiles = []
+testFiles= []
 
 exports.run= ->
   parseOptions()
@@ -68,8 +72,8 @@ exports.run= ->
   compileScripts()
 
 compileScripts= ->
-  dirs = Source: baseSource, Target: baseTarget
-  dirs.Test = baseTest if baseTest
+  dirs= Source: baseSource, Target: baseTarget
+  dirs.Test= baseTest if baseTest
   for name, dir of dirs 
     q path.exists, dir, (exists) ->
       unless exists
@@ -101,8 +105,8 @@ readScript= (source, target) ->
   watchScript(source, target)
 
 watchScript= (source, target) ->
-  isWatched[source] = true
-  fs.watchFile source, {persistent: true, interval: 250}, (curr, prev) ->
+  isWatched[source]= true
+  fs.watchFile source, persistent: true, interval: 250, (curr, prev) ->
     return if curr.mtime.getTime() is prev.mtime.getTime()
     compileScript(source, target)
     puts 'Recompiled '+ source
@@ -110,7 +114,7 @@ watchScript= (source, target) ->
 
 compileScript= (source, target) ->
   try
-    code = fs.readFileSync(source).toString()
+    code= fs.readFileSync(source).toString()
     js= CoffeeScript.compile code, {source}
     writeJS source, js, target
   catch err
@@ -118,7 +122,7 @@ compileScript= (source, target) ->
     notifyGrowl source, err.message
 
 writeJS= (source, js, target) ->
-  base = if target is baseTest then baseTest else baseSource
+  base= if target is baseTest then baseTest else baseSource
   filename= path.basename(source, path.extname(source)) + '.js'
   dir=      target + path.dirname(source).substring(base.length)
   jsPath=  path.join dir, filename
@@ -135,7 +139,7 @@ notifyGrowl= (source, errMessage) ->
   args= ['growlnotify', '-n', 'CoffeeScript', '-p', '2', '-t', "\"Compilation failed\"", '-m', "\"#{message}\""]
   exec args.join(' ')
 
-runTests = ->
+runTests= ->
   for test in testFiles
     puts "running #{test}"
     exec "node #{test}", (error, stdout, stderr) ->
@@ -146,9 +150,9 @@ runTests = ->
 parseOptions= ->
   optionParser= new optparse.OptionParser [], BANNER
   options=    optionParser.parse process.argv
-  [baseSource, baseTarget, baseTest] = options.arguments[arg] or '' for arg in [2..4]
-  if baseSource[-1] is '/' then baseSource = baseSource[0...-1]
-  if baseTarget[-1] is '/' then baseTarget = baseTarget[0...-1]
+  [baseSource, baseTarget, baseTest]= options.arguments[arg] or '' for arg in [2..4]
+  if baseSource[-1] is '/' then baseSource= baseSource[0...-1]
+  if baseTarget[-1] is '/' then baseTarget= baseTarget[0...-1]
 
 usage= ->
   puts optionParser.help()
