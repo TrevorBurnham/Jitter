@@ -1,24 +1,24 @@
 {
-  'name': 'jitter',
-  'description': 'Simple continuous compilation for CoffeeScript',
-  'keywords': ['coffeescript', 'compiler'],
-  'author': 'Trevor Burnham',
-  'version': '0.9.4',
-  'licenses': [{
-    'type': 'MIT'
+  "name": "jitter",
+  "description": "Simple continuous compilation for CoffeeScript",
+  "keywords": ["coffeescript", "compiler"],
+  "author": "Trevor Burnham",
+  "version": "0.9.5",
+  "licenses": [{
+    "type": "MIT"
   }],
-  'engines': {
-    'node': '>=0.1.99',
-    'coffee-script': '>= 0.9.4'
+  "engines": {
+    "node": ">=0.1.99",
+    "coffee-script": ">= 0.9.4"
   },
-  'directories' : {
-    'lib': './lib'
+  "directories" : {
+    "lib": "./lib"
   },
-  'main': './lib/coffee-script/jitter',
-  'bin': {
-    'jitter': './bin/jitter'
+  "main": "./lib/coffee-script/jitter",
+  "bin": {
+    "jitter": "./bin/jitter"
   },
   "dependencies" : { 
-    "sink" : "0.1.0 - 0.2.99" 
+    "sink" : "0.1.1 - 0.2.99" 
   }
 }
