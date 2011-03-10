@@ -67,11 +67,11 @@ isWatched= {}
 testFiles= []
 
 exports.run= ->
-  parseOptions()
+  options = parseOptions()
   return usage() unless baseTarget
-  compileScripts()
+  compileScripts(options)
 
-compileScripts= ->
+compileScripts= (options) ->
   dirs= Source: baseSource, Target: baseTarget
   dirs.Test= baseTest if baseTest
   for name, dir of dirs 
@@ -80,42 +80,42 @@ compileScripts= ->
         die "#{name} directory '#{dir}' does not exist."
       else unless fs.statSync(dir).isDirectory()
         die "#{name} '#{dir}' is a file; Jitter needs a directory."
-  q rootCompile
+  q -> rootCompile(options)
   q runTests
   q ->  
     puts 'Watching for changes and new files. Press Ctrl+C to stop.'
     setInterval rootCompile, 500
 
-compile= (source, target) ->
+compile= (source, target, options) ->
   for item in fs.readdirSync source
     sourcePath= "#{source}/#{item}"
     continue if isWatched[sourcePath]
     if path.extname(sourcePath) is '.coffee'
-      readScript sourcePath, target
+      readScript sourcePath, target, options
     else if fs.statSync(sourcePath).isDirectory()
-      compile sourcePath, target
+      compile sourcePath, target, options
     
-rootCompile= ->
-  compile(baseSource, baseTarget)
-  compile(baseTest, baseTest) if baseTest
+rootCompile= (options) ->
+  compile(baseSource, baseTarget, options)
+  compile(baseTest, baseTest, options) if baseTest
 
-readScript= (source, target) ->
-  compileScript(source, target)
+readScript= (source, target, options) ->
+  compileScript(source, target, options)
   puts 'Compiled '+ source
-  watchScript(source, target)
+  watchScript(source, target, options)
 
-watchScript= (source, target) ->
+watchScript= (source, target, options) ->
   isWatched[source]= true
   fs.watchFile source, persistent: true, interval: 250, (curr, prev) ->
     return if curr.mtime.getTime() is prev.mtime.getTime()
-    compileScript(source, target)
+    compileScript(source, target, options)
     puts 'Recompiled '+ source
     q runTests
 
-compileScript= (source, target) ->
+compileScript= (source, target, options) ->
   try
     code= fs.readFileSync(source).toString()
-    js= CoffeeScript.compile code, {source}
+    js= CoffeeScript.compile code, {source, bare: options.bare}
     writeJS source, js, target
   catch err
     puts err.message
@@ -148,11 +148,14 @@ runTests= ->
       notifyGrowl test, stderr if stderr
 
 parseOptions= ->
-  optionParser= new optparse.OptionParser [], BANNER
+  optionParser= new optparse.OptionParser [
+      ['-b', '--bare', 'compile without the top-level function wrapper']
+  ], BANNER
   options=    optionParser.parse process.argv
   [baseSource, baseTarget, baseTest]= (options.arguments[arg] or '' for arg in [2..4])
   if /\/$/.test baseSource then baseSource= baseSource.substr 0, baseSource.length-1
   if /\/$/.test baseTarget then baseTarget= baseTarget.substr 0, baseTarget.length-1
+  options
 
 usage= ->
   puts optionParser.help()
