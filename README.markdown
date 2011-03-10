@@ -74,8 +74,8 @@ Wadden ([hiddenbek](http://github.com/hiddenbek)).
 
 ## Copyright
 
-Copyright (c) 2010 Trevor Burnham  
-http://iterative.ly
+Copyright (c) 2011 Trevor Burnham  
+http://trevorburnham.com
 
 Based on command.coffee by Jeremy Ashkenas  
 http://jashkenas.github.com/coffee-script/documentation/docs/command.html

@@ -3,13 +3,13 @@
   "description": "Simple continuous compilation for CoffeeScript",
   "keywords": ["coffeescript", "compiler"],
   "author": "Trevor Burnham",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "licenses": [{
     "type": "MIT"
   }],
   "engines": {
     "node": ">=0.1.99",
-    "coffee-script": ">= 1.0.0"
+    "coffee-script": ">= 1.0.1"
   },
   "directories" : {
     "lib": "./lib"
@@ -19,6 +19,7 @@
     "jitter": "./bin/jitter"
   },
   "dependencies" : {
-    "sink" : "0.1.1 - 0.2.99"
+    "sink" : "0.1.1 - 0.2.99",
+    "coffee-script": ">= 1.0.1
   }
 }
