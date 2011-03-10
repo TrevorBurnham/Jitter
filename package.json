@@ -20,6 +20,6 @@
   },
   "dependencies" : {
     "sink" : "0.1.1 - 0.2.99",
-    "coffee-script": ">= 1.0.1
+    "coffee-script": ">= 1.0.1"
   }
 }
