@@ -150,7 +150,7 @@ runTests= ->
 parseOptions= ->
   optionParser= new optparse.OptionParser [], BANNER
   options=    optionParser.parse process.argv
-  [baseSource, baseTarget, baseTest]= options.arguments[arg] or '' for arg in [2..4]
+  [baseSource, baseTarget, baseTest]= (options.arguments[arg] or '' for arg in [2..4])
   if /\/$/.test baseSource then baseSource= baseSource.substr 0, baseSource.length-1
   if /\/$/.test baseTarget then baseTarget= baseTarget.substr 0, baseTarget.length-1
 
