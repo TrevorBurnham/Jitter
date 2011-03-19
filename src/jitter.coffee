@@ -80,11 +80,13 @@ compileScripts= (options) ->
         die "#{name} directory '#{dir}' does not exist."
       else unless fs.statSync(dir).isDirectory()
         die "#{name} '#{dir}' is a file; Jitter needs a directory."
-  q -> rootCompile(options)
+  q -> rootCompile options
   q runTests
   q ->  
     puts 'Watching for changes and new files. Press Ctrl+C to stop.'
-    setInterval rootCompile, 500
+    setInterval ->
+        rootCompile options
+    , 500
 
 compile= (source, target, options) ->
   for item in fs.readdirSync source
@@ -115,7 +117,7 @@ watchScript= (source, target, options) ->
 compileScript= (source, target, options) ->
   try
     code= fs.readFileSync(source).toString()
-    js= CoffeeScript.compile code, {source, bare: options.bare}
+    js= CoffeeScript.compile code, {source, bare: options?.bare}
     writeJS source, js, target
   catch err
     puts err.message
