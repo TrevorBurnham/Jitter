@@ -91,6 +91,7 @@ compileScripts= (options) ->
 compile= (source, target, options) ->
   for item in fs.readdirSync source
     sourcePath= "#{source}/#{item}"
+    continue if item.indexOf(".#") is 0
     continue if isWatched[sourcePath]
     if path.extname(sourcePath) is '.coffee'
       readScript sourcePath, target, options
