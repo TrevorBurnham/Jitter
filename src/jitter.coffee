@@ -93,10 +93,12 @@ compile= (source, target, options) ->
     sourcePath= "#{source}/#{item}"
     continue if item[0] is '.'
     continue if isWatched[sourcePath]
-    if path.extname(sourcePath) is '.coffee'
-      readScript sourcePath, target, options
-    else if fs.statSync(sourcePath).isDirectory()
-      compile sourcePath, target, options
+    try
+      if path.extname(sourcePath) is '.coffee'
+        readScript sourcePath, target, options
+      else if fs.statSync(sourcePath).isDirectory()
+        compile sourcePath, target, options
+    catch e
     
 rootCompile= (options) ->
   compile(baseSource, baseTarget, options)
