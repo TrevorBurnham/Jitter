@@ -1,27 +1,30 @@
 # Jitter
 
-Simple continuous compilation for [CoffeeScript](http://coffeescript.org).
+Simple continuous compilation for [CoffeeScript](http://coffeescript.org), from the author
+of *[CoffeeScript: Accelerated JavaScript Development](http://pragprog.com/titles/tbcoffee/coffeescript)*.
 
 Jitter watches for new files and changes to files in the CoffeeScript source directory
 you specify, and compiles new JavaScript files as needed. No flags, no worries, just the
 sweet CoffeeScript compilation you need when you need it.
 
-*Bonus!* Jitter gives you Growl notifications when compilation fails! See below for
+***Bonus!*** Jitter gives you Growl notifications when compilation fails! See below for
 details.
 
-*Extra bonus!* Jitter lets you automatically compile and run a second set of code after
+***Extra bonus!*** Jitter lets you automatically compile and run a second set of code after
 each successful compilation. That means that console-based tests are a breeze.
 
 ## Installing
 
 You'll need to install [Node.js](http://nodejs.org) and [npm](http://npmjs.org/), the
-Node Package Manager. Once that's done, installing CoffeeScript is a breeze:
+Node Package Manager. If you don't already have CoffeeScript installed (check with 
+`require('coffee-script')` from Node), run
 
-    npm install coffee-script
+    npm install -g coffee-script
 
-And adding Jitter is just as easy:
+(The `-g` flag tells npm that you want to do a *global* install, rather than just making
+the library available to a particular project.) And adding Jitter is just as easy:
 
-    npm install jitter
+    npm install -g jitter
 
 Make sure that the `bin` directory that `coffee` and `jitter` are installed to is on
 your PATH.
@@ -32,7 +35,7 @@ To build and install Jitter from source:
 
     git clone git://github.com/TrevorBurnham/Jitter.git
     cd Jitter
-    npm install .
+    npm install -g
 
 ## To use:
 
@@ -70,7 +73,7 @@ including uncaught `AssertionError`s.
 Originally written by [Trevor Burnham](http://github.com/TrevorBurnham). Updated to
 CoffeeScript 0.9 by [cj](http://github.com/cj). Growl notification code pulled from work
 by [Andrey Tarantsov](http://www.tarantsov.com/). Post-compile hook code added by Scott
-Wadden ([hiddenbek](http://github.com/hiddenbek)).
+Wadden ([hiddenbek](http://github.com/hiddenbek)). Various patches by Nao izuka ([iizukanao](https://github.com/iizukanao)).
 
 ## Copyright
 
