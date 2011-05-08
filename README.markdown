@@ -13,6 +13,9 @@ details.
 ***Extra bonus!*** Jitter lets you automatically compile and run a second set of code after
 each successful compilation. That means that console-based tests are a breeze.
 
+***Extra, extra bonus!*** Jitter only replaces JS files when necessary (that is, when your
+CoffeeScript and JavaScript are out of sync). So no more meaningless timestamp changes!
+
 ## Installing
 
 You'll need to install [Node.js](http://nodejs.org) and [npm](http://npmjs.org/), the
