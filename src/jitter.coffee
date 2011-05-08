@@ -106,34 +106,44 @@ rootCompile= (options) ->
 
 readScript= (source, target, options) ->
   compileScript(source, target, options)
-  puts 'Compiled '+ source
   watchScript(source, target, options)
 
 watchScript= (source, target, options) ->
+  return if isWatched[source]
   isWatched[source]= true
   fs.watchFile source, persistent: true, interval: 250, (curr, prev) ->
     return if curr.mtime.getTime() is prev.mtime.getTime()
     compileScript(source, target, options)
-    puts 'Recompiled '+ source
     q runTests
 
 compileScript= (source, target, options) ->
+  targetPath = jsPath source, target
   try
     code= fs.readFileSync(source).toString()
+    try
+      currentJS = fs.readFileSync(targetPath).toString()
     js= CoffeeScript.compile code, {source, bare: options?.bare}
-    writeJS source, js, target
+    return if js is currentJS
+    writeJS js, targetPath
+    if currentJS?
+      puts 'Recompiled '+ source
+    else
+      puts 'Compiled '+ source
   catch err
     puts err.message
     notifyGrowl source, err.message
 
-writeJS= (source, js, target) ->
+jsPath= (source, target) ->
   base= if target is baseTest then baseTest else baseSource
   filename= path.basename(source, path.extname(source)) + '.js'
   dir=      target + path.dirname(source).substring(base.length)
-  jsPath=  path.join dir, filename
-  q exec, "mkdir -p #{dir}", ->
-    fs.writeFileSync jsPath, js
-    testFiles.push jsPath if target is baseTest and jsPath not in testFiles 
+  path.join dir, filename
+
+writeJS= (js, targetPath) ->
+  q exec, "mkdir -p #{path.dirname targetPath}", ->
+    fs.writeFileSync targetPath, js
+    if baseTest and isSubpath(baseTest, targetPath) and (targetPath not in testFiles)
+      testFiles.push targetPath
       
 notifyGrowl= (source, errMessage) ->
   basename= source.replace(/^.*[\/\\]/, '')
@@ -146,7 +156,7 @@ notifyGrowl= (source, errMessage) ->
 
 runTests= ->
   for test in testFiles
-    puts "running #{test}"
+    puts "Running #{test}"
     exec "node #{test}", (error, stdout, stderr) ->
       print stdout
       print stderr
@@ -169,3 +179,9 @@ usage= ->
 die= (message) ->
   puts message
   process.exit 1
+
+# http://stackoverflow.com/questions/5888477/
+isSubpath= (parent, sub) ->
+  parent = fs.realpathSync parent
+  sub = fs.realpathSync sub
+  sub.indexOf(parent) is 0
