@@ -36,11 +36,18 @@
 ###
 
 # External dependencies
-
 fs=            require 'fs'
 path=          require 'path'
 optparse=      require './optparse'
-CoffeeScript=  require 'coffee-script'
+
+if path.basename(process.argv[1]) == 'witter'
+  targetlib = 'coco' 
+  target_ext = '.coco'
+else 
+  targetlib = 'coffee-script'
+  target_ext = '.coffee'
+
+CoffeeScript=  require targetlib
 {exec}=        require 'child_process'
 {puts, print}= require 'sys'
 {q}=           require 'sink'
@@ -94,7 +101,7 @@ compile= (source, target, options) ->
     continue if item[0] is '.'
     continue if isWatched[sourcePath]
     try
-      if path.extname(sourcePath) is '.coffee'
+      if path.extname(sourcePath) is target_ext
         readScript sourcePath, target, options
       else if fs.statSync(sourcePath).isDirectory()
         compile sourcePath, target, options
