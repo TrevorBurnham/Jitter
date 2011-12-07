@@ -41,15 +41,15 @@ path=          require 'path'
 optparse=      require './optparse'
 
 if path.basename(process.argv[1]) == 'witter'
-  targetlib = 'coco' 
+  targetlib = 'coco'
   target_ext = '.coco'
-else 
+else
   targetlib = 'coffee-script'
   target_ext = '.coffee'
 
 CoffeeScript=  require targetlib
 {exec}=        require 'child_process'
-{puts, print}= require 'sys'
+{puts, print}= try require 'util' catch e then require 'sys'
 {q}=           require 'sink'
 
 # Banner shown if jitter is run without arguments
@@ -81,7 +81,7 @@ exports.run= ->
 compileScripts= (options) ->
   dirs= Source: baseSource, Target: baseTarget
   dirs.Test= baseTest if baseTest
-  for name, dir of dirs 
+  for name, dir of dirs
     q path.exists, dir, (exists) ->
       unless exists
         die "#{name} directory '#{dir}' does not exist."
@@ -89,7 +89,7 @@ compileScripts= (options) ->
         die "#{name} '#{dir}' is a file; Jitter needs a directory."
   q -> rootCompile options
   q runTests
-  q ->  
+  q ->
     puts 'Watching for changes and new files. Press Ctrl+C to stop.'
     setInterval ->
         rootCompile options
@@ -106,7 +106,7 @@ compile= (source, target, options) ->
       else if fs.statSync(sourcePath).isDirectory()
         compile sourcePath, target, options
     catch e
-    
+
 rootCompile= (options) ->
   compile(baseSource, baseTarget, options)
   compile(baseTest, baseTest, options) if baseTest
@@ -151,7 +151,7 @@ writeJS= (js, targetPath) ->
     fs.writeFileSync targetPath, js
     if baseTest and isSubpath(baseTest, targetPath) and (targetPath not in testFiles)
       testFiles.push targetPath
-      
+
 notifyGrowl= (source, errMessage) ->
   basename= source.replace(/^.*[\/\\]/, '')
   if m= errMessage.match /Parse error on line (\d+)/
