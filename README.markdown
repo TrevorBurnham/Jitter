@@ -16,10 +16,15 @@ each successful compilation. That means that console-based tests are a breeze.
 ***Extra, extra bonus!*** Jitter only replaces JS files when necessary (that is, when your
 CoffeeScript and JavaScript are out of sync). So no more meaningless timestamp changes!
 
+## Compatibility
+
+Jitter uses Node's `fs.watchFile` API, which means that it's compatible with
+Node <= 0.6.x (but incompatible with Windows—sorry).
+
 ## Installing
 
 You'll need to install [Node.js](http://nodejs.org) and [npm](http://npmjs.org/), the
-Node Package Manager. If you don't already have CoffeeScript installed (check with 
+Node Package Manager. If you don't already have CoffeeScript installed (check with
 `require('coffee-script')` from Node), run
 
     npm install -g coffee-script
@@ -80,10 +85,10 @@ Wadden ([hiddenbek](http://github.com/hiddenbek)). Various patches by Nao izuka 
 
 ## Copyright
 
-Copyright (c) 2011 Trevor Burnham  
+Copyright (c) 2011 Trevor Burnham
 http://trevorburnham.com
 
-Based on command.coffee by Jeremy Ashkenas  
+Based on command.coffee by Jeremy Ashkenas
 http://jashkenas.github.com/coffee-script/documentation/docs/command.html
 
 MIT licensed:
