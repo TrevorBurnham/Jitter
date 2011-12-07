@@ -3,7 +3,7 @@
   "description": "Simple continuous compilation for CoffeeScript",
   "keywords": ["coffeescript", "compiler"],
   "author": "Trevor Burnham",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "licenses": [{
     "type": "MIT"
   }],
