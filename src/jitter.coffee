@@ -138,7 +138,7 @@ compileScript= (source, target, options) ->
       puts 'Compiled '+ source
   catch err
     puts err.message
-    notifyGrowl source, err.message
+    notify source, err.message
 
 jsPath= (source, target) ->
   base= if target is baseTest then baseTest else baseSource
@@ -152,13 +152,17 @@ writeJS= (js, targetPath) ->
     if baseTest and isSubpath(baseTest, targetPath) and (targetPath not in testFiles)
       testFiles.push targetPath
 
-notifyGrowl= (source, errMessage) ->
+notify= (source, errMessage) ->
   basename= source.replace(/^.*[\/\\]/, '')
   if m= errMessage.match /Parse error on line (\d+)/
     message= "Parse error in #{basename}\non line #{m[1]}."
   else
     message= "Error in #{basename}."
+  # growl for mac
   args= ['growlnotify', '-n', 'CoffeeScript', '-p', '2', '-t', "\"Compilation failed\"", '-m', "\"#{message}\""]
+  exec args.join(' ')
+  # libnotify for linux
+  args= ['notify-send', '-c', 'CoffeeScript', '-t', '2', "\"Compilation failed\"", "\"#{message}\""]
   exec args.join(' ')
 
 runTests= ->
@@ -167,7 +171,7 @@ runTests= ->
     exec "node #{test}", (error, stdout, stderr) ->
       print stdout
       print stderr
-      notifyGrowl test, stderr if stderr
+      notify test, stderr if stderr
 
 parseOptions= ->
   optionParser= new optparse.OptionParser [
