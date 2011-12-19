@@ -158,12 +158,12 @@ notify= (source, errMessage) ->
     message= "Parse error in #{basename}\non line #{m[1]}."
   else
     message= "Error in #{basename}."
-  # growl for mac
-  args= ['growlnotify', '-n', 'CoffeeScript', '-p', '2', '-t', "\"Compilation failed\"", '-m', "\"#{message}\""]
-  exec args.join(' ')
-  # libnotify for linux
-  args= ['notify-send', '-c', 'CoffeeScript', '-t', '2', "\"Compilation failed\"", "\"#{message}\""]
-  exec args.join(' ')
+  if process.platform is 'darwin' # growl for mac
+    args= ['growlnotify', '-n', 'CoffeeScript', '-p', '2', '-t', "\"Compilation failed\"", '-m', "\"#{message}\""]
+    exec args.join(' ')
+  else # libnotify for linux
+    args= ['notify-send', '-c', 'CoffeeScript', '-t', '2', "\"Compilation failed\"", "\"#{message}\""]
+    exec args.join(' ')
 
 runTests= ->
   for test in testFiles
