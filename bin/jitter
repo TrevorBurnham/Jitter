@@ -8,4 +8,4 @@ var lib = path.join(path.dirname(fs.realpathSync(__filename)), '../lib');
 this.JITTER_BIN = true;
 
 //require(lib + '/helpers').helpers.extend(global, require('sys'));
-require(lib + '/jitter').run.apply(this);
+require(lib + '/jitter').apply(this);

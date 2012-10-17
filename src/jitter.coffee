@@ -73,7 +73,7 @@ optionParser= null
 isWatched= {}
 testFiles= []
 
-exports.run= (source, target, test = '') ->
+module.exports= (source, target, test = '') ->
   if source? and target?
     [baseSource, baseTarget] = [source, target]
   else if @JITTER_BIN
