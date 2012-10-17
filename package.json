@@ -14,7 +14,7 @@
   "directories" : {
     "lib": "./lib"
   },
-  "main": "./lib/coffee-script/jitter",
+  "main": "./lib/jitter",
   "bin": {
     "jitter": "./bin/jitter"
   },
