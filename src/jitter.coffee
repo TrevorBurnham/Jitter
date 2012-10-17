@@ -73,9 +73,15 @@ optionParser= null
 isWatched= {}
 testFiles= []
 
-exports.run= ->
-  options = parseOptions()
-  return usage() unless baseTarget
+module.exports= (source, target, test = '') ->
+  if source? and target?
+    [baseSource, baseTarget] = [source, target]
+  else if @JITTER_BIN
+    parseOptions() # from the command line...
+    return usage() unless baseTarget
+  else
+    throw 'source and target must be supplied'
+  baseTest = test if not baseTest
   compileScripts(options)
 
 compileScripts= (options) ->
