@@ -73,9 +73,15 @@ optionParser= null
 isWatched= {}
 testFiles= []
 
-exports.run= ->
-  options = parseOptions()
-  return usage() unless baseTarget
+exports.run= (source, target, test) ->
+  if source? and target?
+    [baseSource, baseTarget] = [source, target]
+  else if require.main is module
+    parseOptions() # from the command line...
+    return usage() unless baseTarget
+  else
+    throw 'source and target must be supplied'
+  baseTest ?= test
   compileScripts(options)
 
 compileScripts= (options) ->
