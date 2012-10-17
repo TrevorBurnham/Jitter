@@ -73,15 +73,15 @@ optionParser= null
 isWatched= {}
 testFiles= []
 
-exports.run= (source, target, test) ->
+exports.run= (source, target, test = '') ->
   if source? and target?
     [baseSource, baseTarget] = [source, target]
-  else if require.main is module
+  else if @JITTER_BIN
     parseOptions() # from the command line...
     return usage() unless baseTarget
   else
     throw 'source and target must be supplied'
-  baseTest ?= test
+  baseTest = test if not baseTest
   compileScripts(options)
 
 compileScripts= (options) ->
