@@ -113,7 +113,7 @@ compileScripts = (options) ->
 
     q ->
 
-        puts 'Watching for changes and new files. Press Ctrl+C to stop.'
+        puts 'Watching for changes and new files. Press Ctrl+C to stop.\n'
 
         setInterval ->
 
@@ -240,11 +240,11 @@ compileScript = (source, target, options) ->
 
         if currentJS?
 
-            puts '\nRecompiled '+ source
+            puts 'Recompiled '+ source + '\n'
 
         else
 
-            puts '\nCompiled '+ source
+            puts 'Compiled '+ source + '\n'
 
     catch err
 
@@ -256,19 +256,19 @@ compileScript = (source, target, options) ->
 
             # + source + ':' + (err.location.first_line + 1) + ': ' + err.message,
 
-            ret = '\nError: '
+            ret = 'Error: '
             ret += source.substr(0, source.length - name.length)
             ret += color name + ':' + (err.location.first_line + 1), 'bold'
 
             ret = color ret, 'red'
 
-            ret += '\n\n  ' + err.message + '\n'
+            ret += '\n\n  ' + err.message
 
             ret
 
         puts msg
 
-        if options?.beep
+        if not options?.beep
 
             `console.log("\007")`
 
@@ -320,22 +320,24 @@ runTests = ->
 
     for test in testFiles
 
-        output = "\nRunning #{test}"
+        output = "Running #{test}"
 
         exec "node #{test}", (error, stdout, stderr) ->
 
             notifyGrowl test, stderr if stderr
 
-            if stderr and options?.beep
+            if stderr
 
-                `console.log("\007")`
+                if not options?.silent
+
+                    `console.log("\007")`
                 
                 output += color ' ' + 'FAILED ->', 'red'
                 output += '\n' + stdout + stderr + '\n'
 
             else
 
-                output += color ' ' + 'PASSED', 'green'
+                output += color ' ' + 'PASSED\n', 'green'
 
             puts output
 
@@ -347,7 +349,7 @@ parseOptions = ->
     optionParser = new optparse.OptionParser [
             ['-b', '--bare', 'compile without the top-level function wrapper'],
             ['-m', '--map', 'compile with source maps'],
-            ['-p', '--beep', 'make a beep sound on errors'],
+            ['-s', '--silent', 'don\'t make beep sounds on errors'],
     ], BANNER
 
     options =    optionParser.parse process.argv
