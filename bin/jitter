@@ -4,8 +4,5 @@ var path = require('path');
 var fs = require('fs');
 var lib = path.join(path.dirname(fs.realpathSync(__filename)), '../lib');
 
-// checked by the jitter module - safer than doing require.main stuff...
-this.JITTER_BIN = true;
-
 //require(lib + '/helpers').helpers.extend(global, require('sys'));
-require(lib + '/jitter').apply(this);
+require(lib + '/jitter').run();
