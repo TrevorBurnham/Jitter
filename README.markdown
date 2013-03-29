@@ -73,6 +73,10 @@ As an example, this would watch the coffee folder, compile into the js folder, g
 
 	jitter coffee js test -m
 
+If you don't want to hear a beep sound on errors, pass the '-s' as an option:
+
+    jitter coffee js -s
+
 Tests will be compiled to js in place, then executed with node. Tests are automatically
 re-executed when changed.
 
