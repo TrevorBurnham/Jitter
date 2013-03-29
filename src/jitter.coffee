@@ -341,6 +341,10 @@ runTests = ->
 
                     output += color ' ' + 'PASSED\n', 'green'
 
+                    if stdout
+
+                        output += '\n' + stdout + '\n'
+
                 puts output
 
                 # print stdout
