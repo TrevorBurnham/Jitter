@@ -43,6 +43,7 @@
 fs = require 'fs'
 path = require 'path'
 optparse = require './optparse'
+color = require('./ansi-color').set
 
 if path.basename(process.argv[1]) is 'witter'
 
@@ -96,7 +97,7 @@ compileScripts = (options) ->
 
     for name, dir of dirs
 
-        q path.exists, dir, (exists) ->
+        q fs.exists, dir, (exists) ->
 
             unless exists
 
@@ -239,15 +240,37 @@ compileScript = (source, target, options) ->
 
         if currentJS?
 
-            puts 'Recompiled '+ source
+            puts '\nRecompiled '+ source
 
         else
 
-            puts 'Compiled '+ source
+            puts '\nCompiled '+ source
 
     catch err
 
-        puts 'Error: ' + source + ': ' + err.message
+        # console.log err.location
+        # 
+        msg = do ->
+
+            name = path.basename source
+
+            # + source + ':' + (err.location.first_line + 1) + ': ' + err.message,
+
+            ret = '\nError: '
+            ret += source.substr(0, source.length - name.length)
+            ret += color name + ':' + (err.location.first_line + 1), 'bold'
+
+            ret = color ret, 'red'
+
+            ret += '\n\n  ' + err.message + '\n'
+
+            ret
+
+        puts msg
+
+        if options?.beep
+
+            `console.log("\007")`
 
         notifyGrowl source, err.message
 
@@ -297,20 +320,34 @@ runTests = ->
 
     for test in testFiles
 
-        puts "Running #{test}"
+        output = "\nRunning #{test}"
 
         exec "node #{test}", (error, stdout, stderr) ->
 
-            print stdout
-            print stderr
-
             notifyGrowl test, stderr if stderr
+
+            if stderr and options?.beep
+
+                `console.log("\007")`
+                
+                output += color ' ' + 'FAILED ->', 'red'
+                output += '\n' + stdout + stderr + '\n'
+
+            else
+
+                output += color ' ' + 'PASSED', 'green'
+
+            puts output
+
+            # print stdout
+            # print stderr
 
 parseOptions = ->
 
     optionParser = new optparse.OptionParser [
             ['-b', '--bare', 'compile without the top-level function wrapper'],
-            ['-m', '--map', 'compile with source maps']
+            ['-m', '--map', 'compile with source maps'],
+            ['-p', '--beep', 'make a beep sound on errors'],
     ], BANNER
 
     options =    optionParser.parse process.argv
