@@ -320,29 +320,31 @@ runTests = ->
 
     for test in testFiles
 
-        output = "Running #{test}"
+        do ->
 
-        exec "node #{test}", (error, stdout, stderr) ->
+            output = "Running #{test}"
 
-            notifyGrowl test, stderr if stderr
+            exec "node #{test}", (error, stdout, stderr) ->
 
-            if stderr
+                notifyGrowl test, stderr if stderr
 
-                if not options?.silent
+                if stderr
 
-                    `console.log("\007")`
-                
-                output += color ' ' + 'FAILED ->', 'red'
-                output += '\n' + stdout + stderr + '\n'
+                    if not options?.silent
 
-            else
+                        `console.log("\007")`
+                    
+                    output += color ' ' + 'FAILED ->', 'red'
+                    output += '\n' + stdout + stderr + '\n'
 
-                output += color ' ' + 'PASSED\n', 'green'
+                else
 
-            puts output
+                    output += color ' ' + 'PASSED\n', 'green'
 
-            # print stdout
-            # print stderr
+                puts output
+
+                # print stdout
+                # print stderr
 
 parseOptions = ->
 
