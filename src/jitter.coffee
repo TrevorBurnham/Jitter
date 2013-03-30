@@ -322,7 +322,7 @@ runTests = ->
 
         do ->
 
-            output = "Running #{test}"
+            output = "  Running " + "#{test}"
 
             exec "node #{test}", (error, stdout, stderr) ->
 
