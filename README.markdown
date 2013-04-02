@@ -16,10 +16,6 @@ each successful compilation. That means that console-based tests are a breeze.
 ***Extra, extra bonus!*** Jitter only replaces JS files when necessary (that is, when your
 CoffeeScript and JavaScript are out of sync). So no more meaningless timestamp changes!
 
-## Compatibility
-
-Jitter uses Node's `fs.watchFile` API, which means that it's compatible with
-Node <= 0.6.x (but incompatible with Windows—sorry).
 
 ## Installing
 
@@ -65,6 +61,22 @@ To automatically run your tests after each change, specify a test directory:
 
     jitter coffee js test
 
+To generate source maps alongside the JavaScript files (Coffee will add the directives automatically):
+
+	jitter coffee js -m
+
+To compile the JavaScript without the top-level function safety wrapper:
+
+	jitter coffee js -b
+
+As an example, this would watch the coffee folder, compile into the js folder, generate sourcemaps, and run the tests:
+
+	jitter coffee js test -m
+
+If you don't want to hear a beep sound on errors, pass '-s' as an option:
+
+    jitter coffee js -s
+
 Tests will be compiled to js in place, then executed with node. Tests are automatically
 re-executed when changed.
 
@@ -103,7 +115,7 @@ including uncaught `AssertionError`s.
 Originally written by [Trevor Burnham](http://github.com/TrevorBurnham). Updated to
 CoffeeScript 0.9 by [cj](http://github.com/cj). Growl notification code pulled from work
 by [Andrey Tarantsov](http://www.tarantsov.com/). Post-compile hook code added by Scott
-Wadden ([hiddenbek](http://github.com/hiddenbek)). Various patches by Nao izuka ([iizukanao](https://github.com/iizukanao)).
+Wadden ([hiddenbek](http://github.com/hiddenbek)). Various patches by Nao izuka ([iizukanao](https://github.com/iizukanao)). Source maps support by Aria Minaei ([AriaMinaei](https://github.com/AriaMinaei)).
 
 ## Copyright
 
