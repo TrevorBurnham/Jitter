@@ -182,11 +182,11 @@ compileScript = (source, target, options) ->
             options?.map = false
 
         if options.map
-            
+
             # We're assuming that the coffee and js reside in the same folder
-            
+
             slashedTargetPath = targetPath.split('\\').join('/')
-            
+
             numOfParentDirs = slashedTargetPath.split('/').length - 1
 
             mapFilename = slashedTargetPath.replace '.js', '.map'
@@ -199,7 +199,7 @@ compileScript = (source, target, options) ->
 
             pathToRoot = do ->
 
-                _path = [] 
+                _path = []
 
                 _path.push '..' for i in [1..numOfParentDirs]
 
@@ -249,7 +249,7 @@ compileScript = (source, target, options) ->
     catch err
 
         # console.log err.location
-        # 
+        #
         msg = do ->
 
             name = path.basename source
@@ -258,7 +258,9 @@ compileScript = (source, target, options) ->
 
             ret = 'Error: '
             ret += source.substr(0, source.length - name.length)
-            ret += color name + ':' + (err.location.first_line + 1), 'bold'
+            if err.location?
+
+                ret += color name + ':' + (err.location.first_line + 1), 'bold'
 
             ret = color ret, 'red'
 
@@ -313,7 +315,7 @@ notifyGrowl = (source, errMessage) ->
         message = "Error in #{basename}."
 
     args = ['growlnotify', '-n', 'CoffeeScript', '-p', '2', '-t', "\"Compilation failed\"", '-m', "\"#{message}\""]
-    
+
     exec args.join(' ')
 
 runTests = ->
@@ -333,7 +335,7 @@ runTests = ->
                     if not options?.silent
 
                         `console.log("\007")`
-                    
+
                     output += color ' ' + 'FAILED ->', 'red'
                     output += '\n' + stdout + stderr + '\n'
 
