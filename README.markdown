@@ -41,9 +41,7 @@ To build and install Jitter from source:
     cd Jitter
     npm install -g
 
-## To use:
-
-### From the command line
+## Usage
 
 Let's say you have a bunch of `*.coffee` files in the `coffee` directory, and want to
 compile them to the `js` directory. Then run:
@@ -79,26 +77,6 @@ If you don't want to hear a beep sound on errors, pass '-s' as an option:
 
 Tests will be compiled to js in place, then executed with node. Tests are automatically
 re-executed when changed.
-
-### From your own module or script
-
-Jitter may be required from within your module:
-
-```js
-var jitter = require('jitter');
-```
-
-And started, with output (currently) being directed straight to your stdout:
-
-```js
-jitter('src', 'lib');
-```
-
-Or if you have a suite of tests you'd like to run as well (as above):
-
-```js
-jitter('src', 'lib', 'test');
-```
 
 ## Growl notifications
 
