@@ -316,11 +316,11 @@ notify = (source, errMessage) ->
 
     # Use Growl if on Mac.
     if process.platform is 'darwin'
-        args = ['growlnotify', '-n', 'CoffeeScript', '-p', '2', '-t', "\"Compilation failed\"", '-m', "\"#{message}\""]
+        args = ['growlnotify', '-n', 'CoffeeScript', '-p', '2', '-t', "\"Compilation failed\"", '-m', "\"#{message}\n\'#{errMessage}\'\""]
         exec args.join(' ')
     # Or libnotify if on Linux.
     else
-        args = ['notify-send', '-c', 'CoffeeScript', '-t', '2', "\"Compilation failed\"", "\"#{message}\""]
+        args = ['notify-send', '-c', 'CoffeeScript', '-t', '5000', "\"Compilation failed\"", "\"#{message}\n\'#{errMessage}\'\""]
         exec args.join(' ')
 
 runTests = ->
