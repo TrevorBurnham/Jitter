@@ -274,7 +274,7 @@ compileScript = (source, target, options) ->
 
             `console.log("\007")`
 
-        notifyGrowl source, err.message
+        notify source, err.message
 
 jsPath = (source, target) ->
 
@@ -302,7 +302,7 @@ writeSourceMap = (content, targetPath) ->
 
         fs.writeFileSync targetPath, content
 
-notifyGrowl = (source, errMessage) ->
+notify = (source, errMessage) ->
 
     basename = source.replace(/^.*[\/\\]/, '')
 
@@ -314,9 +314,14 @@ notifyGrowl = (source, errMessage) ->
 
         message = "Error in #{basename}."
 
-    args = ['growlnotify', '-n', 'CoffeeScript', '-p', '2', '-t', "\"Compilation failed\"", '-m', "\"#{message}\""]
-
-    exec args.join(' ')
+    # Use Growl if on Mac.
+    if process.platform is 'darwin'
+        args = ['growlnotify', '-n', 'CoffeeScript', '-p', '2', '-t', "\"Compilation failed\"", '-m', "\"#{message}\""]
+        exec args.join(' ')
+    # Or libnotify if on Linux.
+    else
+        args = ['notify-send', '-c', 'CoffeeScript', '-t', '2', "\"Compilation failed\"", "\"#{message}\""]
+        exec args.join(' ')
 
 runTests = ->
 
@@ -328,7 +333,7 @@ runTests = ->
 
             exec "node #{test}", (error, stdout, stderr) ->
 
-                notifyGrowl test, stderr if stderr
+                notify test, stderr if stderr
 
                 if stderr
 
